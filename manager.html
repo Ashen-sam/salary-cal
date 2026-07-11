@@ -232,17 +232,13 @@
       <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
     </div>
     <h1>More <span>Tools</span></h1>
-    <p class="sub">Reverse Calculator · Offer Comparison · Bonus Tax · Loan EMI — Y/A 2025/2026</p>
+    <p class="sub">Reverse Calculator · Bonus Tax · Loan EMI — Y/A 2025/2026</p>
   </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab(event,'reverse')">
       <svg class="icon" viewBox="0 0 24 24"><path d="M3 7h18"/><path d="m8 3-5 4 5 4"/><path d="M21 17H3"/><path d="m16 21 5-4-5-4"/></svg>
       Reverse
-    </button>
-    <button class="tab-btn" onclick="switchTab(event,'compare')">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M8 3v18"/><path d="M16 3v18"/><path d="M3 8h5"/><path d="M3 16h5"/><path d="M16 8h5"/><path d="M16 16h5"/></svg>
-      Compare
     </button>
     <button class="tab-btn" onclick="switchTab(event,'bonus')">
       <svg class="icon" viewBox="0 0 24 24"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><polyline points="2 7 12 2 22 7"/><polyline points="2 7 12 12 22 7"/><path d="M12 12v10"/></svg>
@@ -308,78 +304,6 @@
       <div class="note-box">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         <span>Solved by numerically inverting the same IRD Table 01 (Y/A 2025/2026) formula used in the main calculator, so it matches to the rupee.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= TAB: OFFER COMPARISON ================= -->
-  <div class="tab-panel" id="tab-compare">
-    <div class="card">
-      <div class="card-title">
-        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M8 3v18"/><path d="M16 3v18"/></svg></span>
-        Compare Two Job Offers
-      </div>
-      <p class="card-desc">Enter both offers to see which gives you more take-home pay and how total employer cost compares.</p>
-
-      <div class="compare-wrap">
-        <div>
-          <label class="field-label">Offer A</label>
-          <select id="offerASector" style="margin-bottom:10px;">
-            <option value="private">Private Sector</option>
-            <option value="government">Government</option>
-          </select>
-          <input type="number" id="offerAGross" placeholder="Monthly gross (LKR)" min="0" style="margin-bottom:10px;">
-          <input type="number" id="offerABonus" placeholder="Annual bonus (optional)" min="0">
-        </div>
-        <div>
-          <label class="field-label">Offer B</label>
-          <select id="offerBSector" style="margin-bottom:10px;">
-            <option value="private">Private Sector</option>
-            <option value="government">Government</option>
-          </select>
-          <input type="number" id="offerBGross" placeholder="Monthly gross (LKR)" min="0" style="margin-bottom:10px;">
-          <input type="number" id="offerBBonus" placeholder="Annual bonus (optional)" min="0">
-        </div>
-      </div>
-
-      <button onclick="calcCompare()" style="margin-top:6px;">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M8 3v18"/><path d="M16 3v18"/></svg>
-        Compare Offers
-      </button>
-    </div>
-
-    <div class="card hidden" id="compareResultCard">
-      <div class="card-title">
-        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/></svg></span>
-        Comparison Result
-      </div>
-      <div class="compare-wrap">
-        <div class="compare-col">
-          <h3 id="colATitle">Offer A</h3>
-          <div class="result-row"><span class="result-label">Gross/mo</span><span class="result-value" id="cAGross">-</span></div>
-          <div class="result-row"><span class="result-label">EPF (8%)</span><span class="result-value" id="cAEpf">-</span></div>
-          <div class="result-row"><span class="result-label">APIT Tax</span><span class="result-value" id="cATax">-</span></div>
-          <div class="result-row total green"><span class="result-label">Net/mo</span><span class="result-value" id="cANet">-</span></div>
-          <div class="result-row" style="margin-top:6px;"><span class="result-label">Net/year</span><span class="result-value" id="cANetYear">-</span></div>
-          <div class="result-row"><span class="result-label">Employer cost/mo</span><span class="result-value" id="cACost">-</span></div>
-        </div>
-        <div class="compare-col">
-          <h3 id="colBTitle">Offer B</h3>
-          <div class="result-row"><span class="result-label">Gross/mo</span><span class="result-value" id="cBGross">-</span></div>
-          <div class="result-row"><span class="result-label">EPF (8%)</span><span class="result-value" id="cBEpf">-</span></div>
-          <div class="result-row"><span class="result-label">APIT Tax</span><span class="result-value" id="cBTax">-</span></div>
-          <div class="result-row total green"><span class="result-label">Net/mo</span><span class="result-value" id="cBNet">-</span></div>
-          <div class="result-row" style="margin-top:6px;"><span class="result-label">Net/year</span><span class="result-value" id="cBNetYear">-</span></div>
-          <div class="result-row"><span class="result-label">Employer cost/mo</span><span class="result-value" id="cBCost">-</span></div>
-        </div>
-      </div>
-      <div class="note-box" id="compareVerdict" style="background:var(--green-light); border-color:var(--green); color:#1e5c14;">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        <span id="compareVerdictText">-</span>
-      </div>
-      <div class="note-box">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        <span>Annual bonus (if entered) is taxed separately using the IRD Table 02 lump-sum method before being added to yearly net. Government sector has no EPF/ETF.</span>
       </div>
     </div>
   </div>
@@ -617,61 +541,6 @@ function calcReverse() {
   document.getElementById('revRowEpf').style.display = isPrivate ? 'flex' : 'none';
   document.getElementById('revResultCard').classList.remove('hidden');
   document.getElementById('revResultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ---------- TAB: OFFER COMPARISON ---------- */
-function calcCompare() {
-  const aSector = document.getElementById('offerASector').value === 'private';
-  const bSector = document.getElementById('offerBSector').value === 'private';
-  const aGross = parseFloat(document.getElementById('offerAGross').value);
-  const bGross = parseFloat(document.getElementById('offerBGross').value);
-  const aBonus = parseFloat(document.getElementById('offerABonus').value) || 0;
-  const bBonus = parseFloat(document.getElementById('offerBBonus').value) || 0;
-
-  if (isNaN(aGross) || aGross <= 0 || isNaN(bGross) || bGross <= 0) {
-    alert('Please enter a valid monthly gross salary for both offers.');
-    return;
-  }
-
-  function computeOffer(gross, isPrivate, bonus) {
-    const { net, epf, tax } = netForGross(gross, isPrivate);
-    const epfEr = isPrivate ? gross * 0.12 : 0;
-    const etf = isPrivate ? gross * 0.03 : 0;
-    const cost = gross + epfEr + etf;
-    const annualSalary = gross * 12;
-    const bonusTax = bonus > 0 ? (annualTax(annualSalary + bonus) - annualTax(annualSalary)) : 0;
-    const netYear = net * 12 + (bonus - bonusTax);
-    return { net, epf, tax, cost, netYear };
-  }
-
-  const a = computeOffer(aGross, aSector, aBonus);
-  const b = computeOffer(bGross, bSector, bBonus);
-
-  document.getElementById('cAGross').innerText = fmtShort(aGross);
-  document.getElementById('cAEpf').innerText = aSector ? fmtShort(a.epf) : '—';
-  document.getElementById('cATax').innerText = fmtShort(a.tax);
-  document.getElementById('cANet').innerText = fmtShort(a.net);
-  document.getElementById('cANetYear').innerText = fmtShort(a.netYear);
-  document.getElementById('cACost').innerText = fmtShort(a.cost);
-
-  document.getElementById('cBGross').innerText = fmtShort(bGross);
-  document.getElementById('cBEpf').innerText = bSector ? fmtShort(b.epf) : '—';
-  document.getElementById('cBTax').innerText = fmtShort(b.tax);
-  document.getElementById('cBNet').innerText = fmtShort(b.net);
-  document.getElementById('cBNetYear').innerText = fmtShort(b.netYear);
-  document.getElementById('cBCost').innerText = fmtShort(b.cost);
-
-  document.getElementById('colATitle').innerHTML = 'Offer A' + (a.netYear > b.netYear ? ' <span class="winner-badge">Higher Net</span>' : '');
-  document.getElementById('colBTitle').innerHTML = 'Offer B' + (b.netYear > a.netYear ? ' <span class="winner-badge">Higher Net</span>' : '');
-
-  const diff = Math.abs(a.netYear - b.netYear);
-  const better = a.netYear > b.netYear ? 'Offer A' : (b.netYear > a.netYear ? 'Offer B' : null);
-  document.getElementById('compareVerdictText').innerText = better
-    ? `${better} gives you ${fmtShort(diff)} more net take-home per year.`
-    : 'Both offers give you the same net take-home per year.';
-
-  document.getElementById('compareResultCard').classList.remove('hidden');
-  document.getElementById('compareResultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 /* ---------- TAB: BONUS / LUMP-SUM TAX (IRD Table 02 simplified method) ---------- */
