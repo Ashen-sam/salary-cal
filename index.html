@@ -771,24 +771,36 @@ function renderRoleBenchmarks() {
 // Initial render
 renderRoleBenchmarks();
 
-/* ---------- VISITOR COUNTER ---------- */
-/* countapi.xyz (the original free counting service) has been permanently
-   shut down, which is why the badge was stuck showing "–". Switched to
-   countapi.mileshilliard.com, a live, free, no-signup replacement built
-   specifically as a countapi.xyz successor.
-   IMPORTANT: "sl-salary-cal-vercel-app-visits" below is your counter's
-   unique key. This service has no namespaces, so ALL keys are global —
-   keep this key unique to you (e.g. based on your domain) or your count
-   could collide with someone else's. */
+/* ---------- VISITOR COUNTER (unique per browser) ---------- */
+/* countapi.xyz (original service) is dead, so this uses the live
+   countapi.mileshilliard.com replacement.
+   To make this a REAL unique-visitor count (not a page-load count):
+   - On first visit ever from this browser, we mark it in localStorage
+     and call /hit/ (which increases the counter by 1).
+   - On every later visit/reload from the SAME browser, we see the mark
+     already exists, so we call /get/ instead (just reads the current
+     total, does NOT increase it).
+   Limitation (true of every client-side unique-visitor method, including
+   Google Analytics): clearing browser data, using a different browser,
+   or incognito mode will count as a new visitor again. There is no way
+   around that without requiring user accounts. */
 (function initVisitorCounter() {
   const COUNTER_KEY = 'sl-salary-cal-vercel-app-visits';
+  const LOCAL_FLAG = 'sl_salary_cal_visited';
   const countEl = document.getElementById('visitorCount');
+  const alreadyVisited = localStorage.getItem(LOCAL_FLAG) === '1';
+  const endpoint = alreadyVisited
+    ? `https://countapi.mileshilliard.com/api/v1/get/${COUNTER_KEY}`
+    : `https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`;
 
-  fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`)
+  fetch(endpoint)
     .then(res => res.json())
     .then(data => {
       const num = data && data.value !== undefined ? Number(data.value) : NaN;
       countEl.innerText = !isNaN(num) ? num.toLocaleString('en-LK') : '—';
+      if (!alreadyVisited) {
+        localStorage.setItem(LOCAL_FLAG, '1');
+      }
     })
     .catch(() => {
       countEl.innerText = '—';
