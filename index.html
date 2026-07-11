@@ -205,6 +205,16 @@
     font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
     background: var(--green); color: #fff; margin-left: 6px;
   }
+  #roleLevelsWrap {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #roleLevelsWrap::-webkit-scrollbar { width: 6px; }
+  #roleLevelsWrap::-webkit-scrollbar-track { background: transparent; }
+  #roleLevelsWrap::-webkit-scrollbar-thumb { background: #c7cdd6; border-radius: 10px; }
+  #roleLevelsWrap .role-card:last-child { margin-bottom: 4px; }
 
   @media (max-width: 380px) {
     .two-col, .three-col { grid-template-columns: 1fr; }
@@ -433,6 +443,7 @@
         <option value="consulting">Management Consulting</option>
         <option value="legal">Legal Services</option>
         <option value="tourism">Tourism & Hospitality</option>
+        <option value="teaching">Teaching & Education</option>
       </select>
 
       <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Your Monthly Salary (optional, for comparison)</label>
@@ -681,6 +692,14 @@ const ROLE_DATA = {
       { name: 'Entry Level (0-2 yrs)', min: 45000, max: 75000 },
       { name: 'Mid Level (3-7 yrs)', min: 85000, max: 250000 },
       { name: 'Senior Level (8+ yrs)', min: 250000, max: 500000 }
+    ]
+  },
+  teaching: {
+    label: 'Teaching & Education',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 40000, max: 70000 },
+      { name: 'Mid Level (3-7 yrs)', min: 75000, max: 150000 },
+      { name: 'Senior Level (8+ yrs)', min: 150000, max: 350000 }
     ]
   }
 };
