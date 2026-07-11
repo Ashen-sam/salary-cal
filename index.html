@@ -59,7 +59,11 @@
     "Net take-home pay breakdown",
     "Resignation EPF/ETF payout estimator",
     "Salary growth projector",
-    "Job role salary benchmarks by industry"
+    "Job role salary benchmarks by industry",
+    "Reverse net-to-gross salary calculator",
+    "Job offer comparison tool",
+    "Bonus / lump-sum APIT tax calculator",
+    "Loan EMI & affordability calculator"
   ]
 }
 </script>
@@ -303,6 +307,28 @@
   @media (max-width: 480px) {
     .visitor-badge { top: 8px; right: 8px; padding: 5px 10px 5px 8px; font-size: 11px; }
   }
+
+  /* More Tools banner */
+  .more-tools-banner {
+    display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(135deg, var(--blue-light) 0%, #eef4ff 100%);
+    border: 1.5px solid #c7ddff; border-radius: 16px;
+    padding: 14px 16px; margin-bottom: 16px;
+    text-decoration: none; color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+  .more-tools-banner:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(24,119,242,0.15); }
+  .more-tools-banner .mt-icon {
+    width: 42px; height: 42px; border-radius: 12px; background: var(--blue); color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 19px;
+  }
+  .more-tools-banner .mt-icon svg { width: 21px; height: 21px; }
+  .more-tools-banner .mt-text { flex: 1; min-width: 0; }
+  .more-tools-banner .mt-title { font-weight: 800; font-size: clamp(13.5px, 3.6vw, 15px); color: #1c1e21; margin-bottom: 2px; }
+  .more-tools-banner .mt-desc { font-size: clamp(11px, 2.9vw, 12.5px); color: var(--gray-text); }
+  .more-tools-banner .mt-arrow { color: var(--blue); flex-shrink: 0; }
+  .more-tools-banner .mt-arrow svg { width: 20px; height: 20px; }
 </style>
 </head>
 <body>
@@ -319,6 +345,19 @@
    <img src="image-removebg-preview.png" alt="" width="160" >
     <p class="sub">EPF · ETF · APIT (PAYE) Tax — Y/A 2025/2026 Rates</p>
   </div>
+
+  <a class="more-tools-banner" href="manager.html">
+    <span class="mt-icon">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+    </span>
+    <span class="mt-text">
+      <div class="mt-title">More Tools →</div>
+      <div class="mt-desc">Reverse calculator, offer comparison, bonus tax & loan EMI</div>
+    </span>
+    <span class="mt-arrow">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </span>
+  </a>
 
   <!-- TABS -->
   <div class="tabs">
