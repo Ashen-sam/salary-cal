@@ -772,24 +772,23 @@ function renderRoleBenchmarks() {
 renderRoleBenchmarks();
 
 /* ---------- VISITOR COUNTER ---------- */
-/* Uses the free CountAPI service (no signup/backend needed) to keep a
-   shared hit counter across all visitors to this page.
-   IMPORTANT: "sl-salary-calc-app" below is the counter's namespace/key.
-   Change it to something unique to you (e.g. your domain name) so your
-   count doesn't collide with anyone else using the same default value. */
+/* countapi.xyz (the original free counting service) has been permanently
+   shut down, which is why the badge was stuck showing "–". Switched to
+   countapi.mileshilliard.com, a live, free, no-signup replacement built
+   specifically as a countapi.xyz successor.
+   IMPORTANT: "sl-salary-cal-vercel-app-visits" below is your counter's
+   unique key. This service has no namespaces, so ALL keys are global —
+   keep this key unique to you (e.g. based on your domain) or your count
+   could collide with someone else's. */
 (function initVisitorCounter() {
-  const NAMESPACE = 'sl-salary-calc-app';
-  const KEY = 'site-visits';
+  const COUNTER_KEY = 'sl-salary-cal-vercel-app-visits';
   const countEl = document.getElementById('visitorCount');
 
-  fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`)
+  fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`)
     .then(res => res.json())
     .then(data => {
-      if (data && typeof data.value === 'number') {
-        countEl.innerText = data.value.toLocaleString('en-LK');
-      } else {
-        countEl.innerText = '—';
-      }
+      const num = data && data.value !== undefined ? Number(data.value) : NaN;
+      countEl.innerText = !isNaN(num) ? num.toLocaleString('en-LK') : '—';
     })
     .catch(() => {
       countEl.innerText = '—';
