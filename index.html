@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Sri Lanka Salary Calculator</title>
+<link rel="icon" type="image/png" href="./image.png">
+<style>
+  :root {
+    --blue: #1877F2;
+    --blue-dark: #145dbf;
+    --blue-light: #e7f0ff;
+    --green: #2c8a1f;
+    --green-light: #eaf7e6;
+    --gray-text: #65676b;
+    --gray-border: #dfe3ee;
+    --gray-bg: #f0f2f5;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: linear-gradient(180deg, #f7faff 0%, #ffffff 220px);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1c1e21;
+    margin: 0;
+    padding: clamp(16px, 5vw, 32px) clamp(10px, 4vw, 20px) 48px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .container { max-width: 580px; margin: 0 auto; }
+  svg.icon { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; vertical-align: -0.15em; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: clamp(16px, 4vw, 22px); }
+  .header-icon {
+    width: 48px; height: 48px; background: var(--blue-light); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+    color: var(--blue); font-size: 22px;
+  }
+  h1 { color: #1c1e21; font-size: clamp(18px, 5vw, 23px); font-weight: 800; margin: 0 0 5px; letter-spacing: -0.3px; }
+  h1 span { color: var(--blue); }
+  p.sub { color: var(--gray-text); font-size: clamp(11.5px, 3vw, 13px); margin: 0; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--gray-bg);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    flex: 1;
+    min-width: max-content;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: clamp(9px, 2.6vw, 11px) clamp(8px, 2.5vw, 14px);
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-size: clamp(11.5px, 3vw, 13.5px);
+    font-weight: 700;
+    color: var(--gray-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: var(--blue);
+    box-shadow: 0 2px 6px rgba(24,119,242,0.15);
+  }
+  .tab-btn svg { width: 15px; height: 15px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: #ffffff; border: 1px solid var(--gray-border); border-radius: 16px;
+    padding: clamp(16px, 4.5vw, 24px); margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(24,119,242,0.07);
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: clamp(14.5px, 4vw, 16.5px); font-weight: 700; color: #1c1e21; margin: 0 0 4px;
+  }
+  .card-title .icon-badge {
+    width: 30px; height: 30px; border-radius: 9px; background: var(--blue-light); color: var(--blue);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+  }
+  .card-desc { font-size: clamp(11.5px, 3vw, 12.5px); color: var(--gray-text); margin: 0 0 16px; }
+
+  label.field-label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 600; font-size: clamp(12.5px, 3.2vw, 13.5px); margin-bottom: 7px; color: #1c1e21;
+  }
+  label.field-label .icon { color: var(--gray-text); font-size: 14px; }
+
+  select, input[type="number"] {
+    width: 100%; padding: clamp(10px, 2.8vw, 13px) 14px;
+    font-size: clamp(13.5px, 3.6vw, 15px);
+    border: 1.5px solid #ccd0d5; border-radius: 11px; margin-bottom: 15px;
+    font-family: inherit; background: #fff; color: #1c1e21;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2365676b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 38px;
+  }
+  select:focus, input[type="number"]:focus {
+    outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,119,242,0.13);
+  }
+  input::placeholder { color: #9aa0a6; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .two-col > div, .three-col > div { display: flex; flex-direction: column; }
+
+  /* Sector toggle */
+  .radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
+  .radio-tile { flex: 1; position: relative; }
+  .radio-tile input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .radio-tile .tile-content {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--gray-bg); border: 1.5px solid #ccd0d5; border-radius: 12px;
+    padding: clamp(10px, 3vw, 14px) 8px; text-align: center; font-weight: 600;
+    font-size: clamp(11.5px, 3vw, 13px); color: var(--gray-text); transition: all 0.15s ease;
+  }
+  .radio-tile .tile-content svg { width: clamp(17px, 4.5vw, 20px); height: clamp(17px, 4.5vw, 20px); }
+  .radio-tile input:checked + .tile-content {
+    border-color: var(--blue); background: var(--blue-light); color: var(--blue);
+    box-shadow: 0 2px 8px rgba(24,119,242,0.15);
+  }
+
+  button {
+    width: 100%; background: var(--blue); color: #fff; border: none;
+    padding: clamp(12px, 3.2vw, 15px); font-size: clamp(13.5px, 3.6vw, 15.5px); font-weight: 700;
+    border-radius: 11px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button:hover { background: var(--blue-dark); }
+  button:active { transform: scale(0.98); }
+  button.secondary { background: #eef4ff; color: var(--blue); }
+  button.secondary:hover { background: #dde9ff; }
+
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: clamp(8px, 2.2vw, 10px) 0; font-size: clamp(12.5px, 3.4vw, 14px);
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-label { display: flex; align-items: center; gap: 8px; color: #444950; }
+  .result-label .icon { color: var(--gray-text); font-size: 15px; }
+  .result-value { font-weight: 700; white-space: nowrap; }
+  .result-row.total {
+    font-weight: 800; font-size: clamp(14px, 3.8vw, 16px); color: var(--blue);
+    padding-top: 14px; border-top: 2px solid var(--blue); margin-top: 8px;
+  }
+  .result-row.total.green { color: var(--green); border-top-color: var(--green); }
+
+  .section-divider {
+    display: flex; align-items: center; gap: 8px;
+    font-size: clamp(12.5px, 3.4vw, 14px); font-weight: 700; color: #1c1e21; margin: 22px 0 6px;
+  }
+  .section-divider .icon { color: var(--blue); }
+
+  .note-box {
+    display: flex; gap: 10px; background: #fff8e6; border: 1px solid #ffe4a3; border-radius: 12px;
+    padding: 12px 14px; margin-top: 14px; font-size: clamp(11px, 2.9vw, 12.5px); color: #6b5610;
+  }
+  .note-box .icon { color: #b8860b; margin-top: 1px; font-size: 16px; }
+
+  .hidden { display: none !important; }
+  .footer-note { text-align: center; font-size: clamp(10.5px, 2.6vw, 11.5px); color: #9aa0a6; margin-top: 22px; }
+
+  /* Growth table */
+  .growth-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--gray-border); }
+  table.growth-table { width: 100%; border-collapse: collapse; font-size: clamp(11.5px, 3vw, 13px); min-width: 480px; }
+  table.growth-table th {
+    background: var(--blue-light); color: var(--blue); font-weight: 700;
+    padding: 10px 12px; text-align: left; white-space: nowrap;
+  }
+  table.growth-table td { padding: 10px 12px; border-top: 1px solid #f0f2f5; white-space: nowrap; }
+  table.growth-table tr:nth-child(even) td { background: #fafbfe; }
+  table.growth-table tr.highlight td { background: var(--green-light); font-weight: 700; }
+
+  /* Job role tab */
+  .role-card {
+    border: 1.5px solid var(--gray-border); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+    transition: border-color 0.15s ease;
+  }
+  .role-card.match { border-color: var(--green); background: var(--green-light); }
+  .role-card-title { font-weight: 700; font-size: clamp(13px, 3.4vw, 14.5px); margin-bottom: 8px; display:flex; align-items:center; gap:8px; }
+  .role-level-row { display: flex; justify-content: space-between; font-size: clamp(11.5px, 3vw, 13px); padding: 5px 0; color: #444950; }
+  .role-level-row .lvl-name { font-weight: 600; color: #1c1e21; }
+  .badge {
+    font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    background: var(--green); color: #fff; margin-left: 6px;
+  }
+
+  @media (max-width: 380px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+   <img src="image-removebg-preview.png" alt="" width="160" >
+    <p class="sub">EPF · ETF · APIT (PAYE) Tax — Y/A 2025/2026 Rates</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('calc')">
+      <svg class="icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/></svg>
+      Calculator
+    </button>
+    <button class="tab-btn" onclick="switchTab('growth')">
+      <svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Growth
+    </button>
+    <button class="tab-btn" onclick="switchTab('roles')">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+      Job Roles
+    </button>
+  </div>
+
+  <!-- ================= TAB 1: CALCULATOR ================= -->
+  <div class="tab-panel active" id="tab-calc">
+
+    <div class="card">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></span>
+        Enter Your Details
+      </div>
+      <p class="card-desc">Fill in your salary information to get an accurate breakdown.</p>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Sector</label>
+      <div class="radio-group">
+        <label class="radio-tile">
+          <input type="radio" name="sector" value="private" checked onchange="syncSectorEverywhere()">
+          <div class="tile-content"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Private Sector</div>
+        </label>
+        <label class="radio-tile">
+          <input type="radio" name="sector" value="government" onchange="syncSectorEverywhere()">
+          <div class="tile-content"><svg class="icon" viewBox="0 0 24 24"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>Government</div>
+        </label>
+      </div>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Salary Type Entered</label>
+      <select id="salaryType">
+        <option value="gross">Gross Salary (before deductions)</option>
+        <option value="basic">Basic Salary (EPF/ETF on this only)</option>
+      </select>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Monthly Amount (LKR)</label>
+      <input type="number" id="salaryInput" placeholder="e.g. 150000" min="0" inputmode="numeric" oninput="syncSalaryEverywhere()">
+
+      <button onclick="calculate()">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+        Calculate Salary
+      </button>
+    </div>
+
+    <div class="card hidden" id="resultCard">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg></span>
+        Monthly Breakdown
+      </div>
+      <div class="result-row">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Gross Salary</span>
+        <span class="result-value" id="rGross">-</span>
+      </div>
+      <div class="result-row" id="rowEpfEmp">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>EPF (Employee 8%)</span>
+        <span class="result-value" id="rEpfEmp">-</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2"/><path d="M12 16v2"/></svg>Income Tax (APIT)</span>
+        <span class="result-value" id="rTax">-</span>
+      </div>
+      <div class="result-row total green">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>Net Take-Home Pay</span>
+        <span class="result-value" id="rNet">-</span>
+      </div>
+
+      <div class="section-divider">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+        Employer Contributions
+      </div>
+      <div class="result-row" id="rowEpfEr">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>EPF (Employer 12%)</span>
+        <span class="result-value" id="rEpfEr">-</span>
+      </div>
+      <div class="result-row" id="rowEtf">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>ETF (Employer 3%)</span>
+        <span class="result-value" id="rEtf">-</span>
+      </div>
+      <div class="result-row total">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Total Cost to Employer</span>
+        <span class="result-value" id="rCost">-</span>
+      </div>
+    </div>
+
+    <div class="card hidden" id="resignCard">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></span>
+        When You Resign / Leave
+      </div>
+      <p class="card-desc">Estimate the total EPF & ETF money paid out to you based on your service period.</p>
+      <div class="two-col">
+        <div>
+          <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Years Worked</label>
+          <input type="number" id="yearsWorked" placeholder="e.g. 3" min="0">
+        </div>
+        <div>
+          <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Extra Months</label>
+          <input type="number" id="monthsWorked" placeholder="e.g. 6" min="0" max="11">
+        </div>
+      </div>
+      <button class="secondary" onclick="calculateResignation()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
+        Calculate Resignation Payout
+      </button>
+      <div id="resignResult" class="hidden" style="margin-top:16px;">
+        <div class="result-row">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Your EPF (8% x months)</span>
+          <span class="result-value" id="resEpfEmp">-</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Employer's EPF (12% x months)</span>
+          <span class="result-value" id="resEpfEr">-</span>
+        </div>
+        <div class="result-row total">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>Total EPF Balance</span>
+          <span class="result-value" id="resEpfTotal">-</span>
+        </div>
+        <div class="result-row" style="margin-top:6px;">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>ETF Balance</span>
+          <span class="result-value" id="resEtfTotal">-</span>
+        </div>
+        <div class="result-row total green">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg>Grand Total Paid to You</span>
+          <span class="result-value" id="resGrandTotal">-</span>
+        </div>
+        <div class="note-box">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <span>Principal-only estimate. Real EPF/ETF also earn annual interest, so actual payout is normally higher. Government employees don't have EPF/ETF.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TAB 2: GROWTH PROJECTOR ================= -->
+  <div class="tab-panel" id="tab-growth">
+    <div class="card">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
+        Salary Growth Projector
+      </div>
+      <p class="card-desc">Project your salary and take-home pay over future years based on an expected annual increment.</p>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Current Gross Monthly Salary (LKR)</label>
+      <input type="number" id="growthSalary" placeholder="e.g. 150000" min="0">
+
+      <div class="two-col">
+        <div>
+          <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Annual Increment (%)</label>
+          <input type="number" id="incrementPct" placeholder="e.g. 10" min="0" step="0.5" value="10">
+        </div>
+        <div>
+          <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Project Years</label>
+          <input type="number" id="projectYears" placeholder="e.g. 5" min="1" max="20" value="5">
+        </div>
+      </div>
+
+      <button onclick="calculateGrowth()">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Project My Salary Growth
+      </button>
+
+      <div class="note-box" style="margin-top:14px;">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>Private sector increments in Sri Lanka typically range 6%-15%/year depending on company & performance. Government increments follow fixed salary-scale steps (often smaller %, but with allowances). Adjust the % to match your own situation.</span>
+      </div>
+    </div>
+
+    <div class="card hidden" id="growthResultCard">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+        Year-by-Year Projection
+      </div>
+      <div class="growth-table-wrap">
+        <table class="growth-table">
+          <thead>
+            <tr><th>Year</th><th>Gross Salary</th><th>EPF (8%)</th><th>APIT Tax</th><th>Net Take-Home</th></tr>
+          </thead>
+          <tbody id="growthTableBody"></tbody>
+        </table>
+      </div>
+      <div class="result-row total green" style="margin-top:14px;">
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>Take-Home Growth</span>
+        <span class="result-value" id="growthSummary">-</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TAB 3: JOB ROLE BENCHMARKS ================= -->
+  <div class="tab-panel" id="tab-roles">
+    <div class="card">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></span>
+        Job Role Salary Benchmarks
+      </div>
+      <p class="card-desc">See indicative monthly salary ranges by industry and experience level in Sri Lanka, and how your salary compares.</p>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Industry / Field</label>
+      <select id="roleIndustry" onchange="renderRoleBenchmarks()">
+        <option value="it">IT & Technology</option>
+        <option value="banking">Banking & Finance</option>
+        <option value="healthcare">Healthcare (Private)</option>
+        <option value="construction">Construction & Engineering</option>
+        <option value="consulting">Management Consulting</option>
+        <option value="legal">Legal Services</option>
+        <option value="tourism">Tourism & Hospitality</option>
+      </select>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Your Monthly Salary (optional, for comparison)</label>
+      <input type="number" id="roleSalary" placeholder="e.g. 150000" min="0" oninput="renderRoleBenchmarks()">
+
+      <button onclick="renderRoleBenchmarks()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        Show Benchmarks
+      </button>
+    </div>
+
+    <div class="card hidden" id="roleResultCard">
+      <div class="card-title">
+        <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></span>
+        <span id="roleResultTitle">Salary Ranges</span>
+      </div>
+      <div id="roleLevelsWrap"></div>
+      <div class="note-box">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>These are indicative market ranges based on 2025/2026 industry salary surveys for Sri Lanka. Actual pay varies by company, city (Colombo pays 20-40% above national average), qualifications, and negotiation.</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer-note">Estimates based on IRD Table 01 (Y/A 2025/2026) and 2025/2026 industry salary surveys. Not a substitute for professional payroll or career advice.</p>
+</div>
+
+<script>
+/* ---------- TAB SWITCHING ---------- */
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* Keep salary/sector loosely synced across tabs for convenience */
+function syncSalaryEverywhere() {
+  const v = document.getElementById('salaryInput').value;
+  if (v) {
+    document.getElementById('growthSalary').value = v;
+    document.getElementById('roleSalary').value = v;
+  }
+}
+function syncSectorEverywhere() { /* reserved for future use */ }
+
+/* ---------- SHARED: APIT CALC ---------- */
+function fmt(n) {
+  return 'Rs. ' + n.toLocaleString('en-LK', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function fmtShort(n) {
+  return 'Rs. ' + Math.round(n).toLocaleString('en-LK');
+}
+function calculateAPIT(monthlyTaxableIncome) {
+  const bands = [
+    { limit: 83333.33, rate: 0.06 },
+    { limit: 41666.67, rate: 0.18 },
+    { limit: 41666.67, rate: 0.24 },
+    { limit: 41666.67, rate: 0.30 },
+    { limit: Infinity, rate: 0.36 }
+  ];
+  let remaining = monthlyTaxableIncome;
+  let tax = 0;
+  for (const band of bands) {
+    if (remaining <= 0) break;
+    const taxableInBand = Math.min(remaining, band.limit);
+    tax += taxableInBand * band.rate;
+    remaining -= taxableInBand;
+  }
+  return tax;
+}
+
+/* ---------- TAB 1: CALCULATOR ---------- */
+function calculate() {
+  const sector = document.querySelector('input[name="sector"]:checked').value;
+  const input = parseFloat(document.getElementById('salaryInput').value);
+  if (isNaN(input) || input <= 0) { alert('Please enter a valid salary amount.'); return; }
+
+  const gross = input;
+  const isPrivate = sector === 'private';
+  const epfBase = gross;
+
+  let epfEmployee = 0, epfEmployer = 0, etf = 0;
+  if (isPrivate) {
+    epfEmployee = epfBase * 0.08;
+    epfEmployer = epfBase * 0.12;
+    etf = epfBase * 0.03;
+  }
+
+  const monthlyRelief = 150000;
+  const taxableIncome = Math.max(0, gross - epfEmployee - monthlyRelief);
+  const tax = calculateAPIT(taxableIncome);
+  const netPay = gross - epfEmployee - tax;
+  const employerCost = gross + epfEmployer + etf;
+
+  document.getElementById('rGross').innerText = fmt(gross);
+  document.getElementById('rEpfEmp').innerText = fmt(epfEmployee);
+  document.getElementById('rTax').innerText = fmt(tax);
+  document.getElementById('rNet').innerText = fmt(netPay);
+  document.getElementById('rEpfEr').innerText = fmt(epfEmployer);
+  document.getElementById('rEtf').innerText = fmt(etf);
+  document.getElementById('rCost').innerText = fmt(employerCost);
+
+  document.getElementById('rowEpfEmp').style.display = isPrivate ? 'flex' : 'none';
+  document.getElementById('rowEpfEr').style.display = isPrivate ? 'flex' : 'none';
+  document.getElementById('rowEtf').style.display = isPrivate ? 'flex' : 'none';
+
+  document.getElementById('resultCard').classList.remove('hidden');
+
+  window.currentIsPrivate = isPrivate;
+  window.currentEpfBase = epfBase;
+
+  const resignCard = document.getElementById('resignCard');
+  resignCard.classList.toggle('hidden', !isPrivate);
+  document.getElementById('resignResult').classList.add('hidden');
+
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // auto-fill growth/role tabs
+  document.getElementById('growthSalary').value = gross;
+  document.getElementById('roleSalary').value = gross;
+}
+
+function calculateResignation() {
+  if (!window.currentIsPrivate) { alert('Government sector employees do not have EPF/ETF.'); return; }
+  const years = parseFloat(document.getElementById('yearsWorked').value) || 0;
+  const months = parseFloat(document.getElementById('monthsWorked').value) || 0;
+  const totalMonths = (years * 12) + months;
+  if (totalMonths <= 0) { alert('Please enter a valid duration worked.'); return; }
+
+  const epfBase = window.currentEpfBase;
+  const totalEpfEmployee = epfBase * 0.08 * totalMonths;
+  const totalEpfEmployer = epfBase * 0.12 * totalMonths;
+  const totalEpf = totalEpfEmployee + totalEpfEmployer;
+  const totalEtf = epfBase * 0.03 * totalMonths;
+  const grandTotal = totalEpf + totalEtf;
+
+  document.getElementById('resEpfEmp').innerText = fmt(totalEpfEmployee);
+  document.getElementById('resEpfEr').innerText = fmt(totalEpfEmployer);
+  document.getElementById('resEpfTotal').innerText = fmt(totalEpf);
+  document.getElementById('resEtfTotal').innerText = fmt(totalEtf);
+  document.getElementById('resGrandTotal').innerText = fmt(grandTotal);
+  document.getElementById('resignResult').classList.remove('hidden');
+}
+
+/* ---------- TAB 2: GROWTH PROJECTOR ---------- */
+function calculateGrowth() {
+  const startSalary = parseFloat(document.getElementById('growthSalary').value);
+  const pct = parseFloat(document.getElementById('incrementPct').value);
+  const years = parseInt(document.getElementById('projectYears').value);
+
+  if (isNaN(startSalary) || startSalary <= 0) { alert('Please enter a valid current salary.'); return; }
+  if (isNaN(pct) || pct < 0) { alert('Please enter a valid increment percentage.'); return; }
+  if (isNaN(years) || years < 1) { alert('Please enter a valid number of years.'); return; }
+
+  const isPrivate = document.querySelector('input[name="sector"]:checked').value === 'private';
+  const monthlyRelief = 150000;
+  let tbody = '';
+  let gross = startSalary;
+  let firstNet = null, lastNet = null;
+
+  for (let y = 0; y <= years; y++) {
+    const epfEmployee = isPrivate ? gross * 0.08 : 0;
+    const taxable = Math.max(0, gross - epfEmployee - monthlyRelief);
+    const tax = calculateAPIT(taxable);
+    const net = gross - epfEmployee - tax;
+
+    if (y === 0) firstNet = net;
+    if (y === years) lastNet = net;
+
+    tbody += `<tr class="${y === years ? 'highlight' : ''}">
+      <td>${y === 0 ? 'Now' : 'Year ' + y}</td>
+      <td>${fmtShort(gross)}</td>
+      <td>${isPrivate ? fmtShort(epfEmployee) : '—'}</td>
+      <td>${fmtShort(tax)}</td>
+      <td><strong>${fmtShort(net)}</strong></td>
+    </tr>`;
+
+    gross = gross * (1 + pct / 100);
+  }
+
+  document.getElementById('growthTableBody').innerHTML = tbody;
+  const growthAmt = lastNet - firstNet;
+  const growthPctTotal = ((lastNet / firstNet) - 1) * 100;
+  document.getElementById('growthSummary').innerText =
+    `+${fmtShort(growthAmt)} (+${growthPctTotal.toFixed(1)}%) over ${years} yrs`;
+
+  document.getElementById('growthResultCard').classList.remove('hidden');
+  document.getElementById('growthResultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ---------- TAB 3: JOB ROLE BENCHMARKS ---------- */
+/* Indicative 2025/2026 monthly salary ranges (LKR) by industry & experience level */
+const ROLE_DATA = {
+  it: {
+    label: 'IT & Technology',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 80000, max: 150000 },
+      { name: 'Mid Level (3-7 yrs)', min: 180000, max: 450000 },
+      { name: 'Senior Level (8+ yrs)', min: 450000, max: 1000000 }
+    ]
+  },
+  banking: {
+    label: 'Banking & Finance',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 60000, max: 120000 },
+      { name: 'Mid Level (3-7 yrs)', min: 150000, max: 350000 },
+      { name: 'Senior Level (8+ yrs)', min: 350000, max: 800000 }
+    ]
+  },
+  healthcare: {
+    label: 'Healthcare (Private Sector)',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 80000, max: 150000 },
+      { name: 'Mid Level (3-7 yrs)', min: 200000, max: 450000 },
+      { name: 'Senior Level (8+ yrs)', min: 450000, max: 800000 }
+    ]
+  },
+  construction: {
+    label: 'Construction & Engineering',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 55000, max: 90000 },
+      { name: 'Mid Level (3-7 yrs)', min: 120000, max: 300000 },
+      { name: 'Senior Level (8+ yrs)', min: 300000, max: 600000 }
+    ]
+  },
+  consulting: {
+    label: 'Management Consulting',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 75000, max: 130000 },
+      { name: 'Mid Level (3-7 yrs)', min: 180000, max: 400000 },
+      { name: 'Senior Level (8+ yrs)', min: 400000, max: 700000 }
+    ]
+  },
+  legal: {
+    label: 'Legal Services',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 60000, max: 110000 },
+      { name: 'Mid Level (3-7 yrs)', min: 180000, max: 350000 },
+      { name: 'Senior Level (8+ yrs)', min: 350000, max: 700000 }
+    ]
+  },
+  tourism: {
+    label: 'Tourism & Hospitality',
+    levels: [
+      { name: 'Entry Level (0-2 yrs)', min: 45000, max: 75000 },
+      { name: 'Mid Level (3-7 yrs)', min: 85000, max: 250000 },
+      { name: 'Senior Level (8+ yrs)', min: 250000, max: 500000 }
+    ]
+  }
+};
+
+function renderRoleBenchmarks() {
+  const industry = document.getElementById('roleIndustry').value;
+  const userSalary = parseFloat(document.getElementById('roleSalary').value);
+  const data = ROLE_DATA[industry];
+
+  document.getElementById('roleResultTitle').innerText = data.label + ' — Monthly Ranges (LKR)';
+
+  let html = '';
+  data.levels.forEach(level => {
+    const isMatch = !isNaN(userSalary) && userSalary >= level.min && userSalary <= level.max;
+    html += `<div class="role-card ${isMatch ? 'match' : ''}">
+      <div class="role-card-title">
+        ${level.name}
+        ${isMatch ? '<span class="badge">Your Range</span>' : ''}
+      </div>
+      <div class="role-level-row">
+        <span>Typical Range</span>
+        <span class="lvl-name">${fmtShort(level.min)} – ${fmtShort(level.max)}</span>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('roleLevelsWrap').innerHTML = html;
+  document.getElementById('roleResultCard').classList.remove('hidden');
+}
+
+// Initial render
+renderRoleBenchmarks();
+</script>
+</body>
+</html>
