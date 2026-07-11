@@ -219,9 +219,41 @@
   @media (max-width: 380px) {
     .two-col, .three-col { grid-template-columns: 1fr; }
   }
+
+  /* Visitor counter badge */
+  .visitor-badge {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--gray-border);
+    border-radius: 20px;
+    padding: 6px 12px 6px 10px;
+    box-shadow: 0 4px 12px rgba(24,119,242,0.12);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .visitor-badge svg.icon { width: 14px; height: 14px; color: var(--blue); }
+  .visitor-badge .visitor-count { color: #1c1e21; font-weight: 800; }
+  .visitor-badge .visitor-label { color: var(--gray-text); font-weight: 600; font-size: 10.5px; }
+  @media (max-width: 480px) {
+    .visitor-badge { top: 8px; right: 8px; padding: 5px 10px 5px 8px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
+
+<div class="visitor-badge" id="visitorBadge" title="Total site visits">
+  <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+  <span class="visitor-count" id="visitorCount">–</span>
+  <span class="visitor-label">visits</span>
+</div>
+
 <div class="container">
 
   <div class="header">
@@ -534,7 +566,11 @@ function calculate() {
   }
 
   const monthlyRelief = 150000;
-  const taxableIncome = Math.max(0, gross - epfEmployee - monthlyRelief);
+  // IRD Table 01 (Y/A 2025/26): personal relief is applied directly to gross
+  // "regular profits from employment" — EPF is NOT subtracted first. Source:
+  // "tax deductions should be made from the profits from employment applying
+  // Tax Tables without deducting any sum from such profits from employment."
+  const taxableIncome = Math.max(0, gross - monthlyRelief);
   const tax = calculateAPIT(taxableIncome);
   const netPay = gross - epfEmployee - tax;
   const employerCost = gross + epfEmployer + etf;
@@ -607,7 +643,9 @@ function calculateGrowth() {
 
   for (let y = 0; y <= years; y++) {
     const epfEmployee = isPrivate ? gross * 0.08 : 0;
-    const taxable = Math.max(0, gross - epfEmployee - monthlyRelief);
+    // Same fix as the main calculator: relief applies to gross directly,
+    // per IRD Table 01 — EPF is not subtracted before computing tax.
+    const taxable = Math.max(0, gross - monthlyRelief);
     const tax = calculateAPIT(taxable);
     const net = gross - epfEmployee - tax;
 
@@ -732,6 +770,32 @@ function renderRoleBenchmarks() {
 
 // Initial render
 renderRoleBenchmarks();
+
+/* ---------- VISITOR COUNTER ---------- */
+/* Uses the free CountAPI service (no signup/backend needed) to keep a
+   shared hit counter across all visitors to this page.
+   IMPORTANT: "sl-salary-calc-app" below is the counter's namespace/key.
+   Change it to something unique to you (e.g. your domain name) so your
+   count doesn't collide with anyone else using the same default value. */
+(function initVisitorCounter() {
+  const NAMESPACE = 'sl-salary-calc-app';
+  const KEY = 'site-visits';
+  const countEl = document.getElementById('visitorCount');
+
+  fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && typeof data.value === 'number') {
+        countEl.innerText = data.value.toLocaleString('en-LK');
+      } else {
+        countEl.innerText = '—';
+      }
+    })
+    .catch(() => {
+      countEl.innerText = '—';
+    });
+})();
+
 </script>
 </body>
 </html>
