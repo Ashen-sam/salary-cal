@@ -191,6 +191,37 @@
     .report-header p { margin: 0; font-size: 11px; color: #555; }
     .container { max-width: 100%; }
   }
+
+  /* Custom EPF rate (new) */
+  .rate-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .rate-toggle-row .rt-label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 600; font-size: clamp(12.5px, 3.2vw, 13.5px); color: #1c1e21;
+  }
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
+    position: absolute; cursor: pointer; inset: 0; background-color: #ccd0d5;
+    transition: .15s; border-radius: 24px;
+  }
+  .switch .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background-color: #fff; transition: .15s; border-radius: 50%;
+  }
+  .switch input:checked + .slider { background-color: var(--blue); }
+  .switch input:checked + .slider:before { transform: translateX(18px); }
+  .epf-rate-box {
+    background: var(--blue-light); border: 1px solid #c7ddff; border-radius: 12px;
+    padding: 14px; margin-bottom: 15px;
+  }
+  .epf-rate-box .two-col { margin-bottom: 0; }
+  .epf-rate-box input[type="number"] { margin-bottom: 0; }
+  .epf-rate-box .rate-hint {
+    font-size: clamp(10.5px, 2.7vw, 11.5px); color: #14428f; margin-top: 8px; margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -253,6 +284,29 @@
       <input type="number" id="increment" placeholder="e.g. 8" min="0" step="0.5" value="8">
 
       <div id="privateOnlyFields">
+        <div id="rpEpfRateWrap">
+          <div class="rate-toggle-row">
+            <span class="rt-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/></svg>My employer uses a different EPF %</span>
+            <label class="switch">
+              <input type="checkbox" id="rpCustomEpfToggle" onchange="toggleRpCustomEpf()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="epf-rate-box hidden" id="rpEpfRateBox">
+            <div class="two-col">
+              <div>
+                <label class="field-label" style="margin-bottom:6px;">Employee EPF %</label>
+                <input type="number" id="rpEpfEmpPct" placeholder="8" min="0" max="100" step="0.1" value="8">
+              </div>
+              <div>
+                <label class="field-label" style="margin-bottom:6px;">Employer EPF %</label>
+                <input type="number" id="rpEpfErPct" placeholder="12" min="0" max="100" step="0.1" value="12">
+              </div>
+            </div>
+            <p class="rate-hint">Statutory minimum is 8% + 12% = 20%. Some employers elect higher rates (Section 11 of the EPF Act) or run an Approved Private Provident Fund with different rates (e.g. 10%/15%) — enter your actual rates here if they differ.</p>
+          </div>
+        </div>
+
         <div class="two-col">
           <div>
             <label class="field-label">Current EPF Balance (LKR)</label>
@@ -400,6 +454,23 @@ function toggleSector() {
     : '<svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/></svg>Current Monthly Salary (LKR)';
 }
 
+/* ---------- CUSTOM EPF RATE (new) ---------- */
+function toggleRpCustomEpf() {
+  const on = document.getElementById('rpCustomEpfToggle').checked;
+  document.getElementById('rpEpfRateBox').classList.toggle('hidden', !on);
+  if (!on) {
+    document.getElementById('rpEpfEmpPct').value = 8;
+    document.getElementById('rpEpfErPct').value = 12;
+  }
+}
+function getRpEpfRates() {
+  let emp = parseFloat(document.getElementById('rpEpfEmpPct').value);
+  let er = parseFloat(document.getElementById('rpEpfErPct').value);
+  if (isNaN(emp) || emp < 0) emp = 8;
+  if (isNaN(er) || er < 0) er = 12;
+  return { emp, er };
+}
+
 function fmt(n) {
   return 'Rs. ' + Math.round(n).toLocaleString('en-LK');
 }
@@ -424,11 +495,13 @@ function calculateRetirement() {
     let epfBal = parseFloat(document.getElementById('curEpfBal').value) || 0;
     let etfBal = parseFloat(document.getElementById('curEtfBal').value) || 0;
     const rate = (parseFloat(document.getElementById('interestRate').value) || 0) / 100;
+    const { emp: epfEmpPct, er: epfErPct } = getRpEpfRates();
+    const epfCombinedPct = (epfEmpPct + epfErPct) / 100;
 
     let salary = curSalary;
     let rows = '';
     for (let y = 1; y <= yearsToGo; y++) {
-      const annualEpfContribution = salary * 0.20 * 12; // 8% employee + 12% employer
+      const annualEpfContribution = salary * epfCombinedPct * 12; // employee % + employer %
       const annualEtfContribution = salary * 0.03 * 12;
 
       // Half-year crediting convention: interest applied on opening balance
@@ -452,7 +525,7 @@ function calculateRetirement() {
     const gratuity = totalYearsService >= 5 ? 0.5 * finalSalary * totalYearsService : 0;
 
     document.getElementById('privSummaryLine').innerText =
-      `Projected from age ${curAge} to ${retAge} (${yearsToGo} years), starting at ${fmt(curSalary)}/month with ${increment}% annual increments and ${(rate*100).toFixed(2)}% assumed EPF/ETF interest.`;
+      `Projected from age ${curAge} to ${retAge} (${yearsToGo} years), starting at ${fmt(curSalary)}/month with ${increment}% annual increments, ${epfEmpPct}%+${epfErPct}% EPF contribution and ${(rate*100).toFixed(2)}% assumed EPF/ETF interest.`;
     document.getElementById('pEpfFinal').innerText = fmt(epfBal);
     document.getElementById('pEtfFinal').innerText = fmt(etfBal);
     document.getElementById('pGrandTotal').innerText = fmt(epfBal + etfBal);

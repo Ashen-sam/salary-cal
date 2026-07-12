@@ -351,6 +351,37 @@
 @media (max-width: 480px) {
   .rates-badge { top: 8px; left: 8px; padding: 5px 10px 5px 8px; font-size: 11px; }
 }
+
+  /* Custom rate toggle (new) */
+  .rate-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .rate-toggle-row .rt-label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 600; font-size: clamp(12.5px, 3.2vw, 13.5px); color: #1c1e21;
+  }
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
+    position: absolute; cursor: pointer; inset: 0; background-color: #ccd0d5;
+    transition: .15s; border-radius: 24px;
+  }
+  .switch .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background-color: #fff; transition: .15s; border-radius: 50%;
+  }
+  .switch input:checked + .slider { background-color: var(--blue); }
+  .switch input:checked + .slider:before { transform: translateX(18px); }
+  .epf-rate-box {
+    background: var(--blue-light); border: 1px solid #c7ddff; border-radius: 12px;
+    padding: 14px; margin-bottom: 15px;
+  }
+  .epf-rate-box .two-col { margin-bottom: 0; }
+  .epf-rate-box input[type="number"] { margin-bottom: 0; }
+  .epf-rate-box .rate-hint {
+    font-size: clamp(10.5px, 2.7vw, 11.5px); color: #14428f; margin-top: 8px; margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -433,6 +464,29 @@
       <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Monthly Amount (LKR)</label>
       <input type="number" id="salaryInput" placeholder="e.g. 150000" min="0" inputmode="numeric" oninput="syncSalaryEverywhere()">
 
+      <div id="epfRateWrap">
+        <div class="rate-toggle-row">
+          <span class="rt-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/></svg>My employer uses a different EPF %</span>
+          <label class="switch">
+            <input type="checkbox" id="customEpfToggle" onchange="toggleCustomEpf()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="epf-rate-box hidden" id="epfRateBox">
+          <div class="two-col">
+            <div>
+              <label class="field-label" style="margin-bottom:6px;">Employee EPF %</label>
+              <input type="number" id="epfEmpPct" placeholder="8" min="0" max="100" step="0.1" value="8" oninput="syncEpfEverywhere()">
+            </div>
+            <div>
+              <label class="field-label" style="margin-bottom:6px;">Employer EPF %</label>
+              <input type="number" id="epfErPct" placeholder="12" min="0" max="100" step="0.1" value="12" oninput="syncEpfEverywhere()">
+            </div>
+          </div>
+          <p class="rate-hint">Statutory minimum is 8% (employee) + 12% (employer). Some employers elect to contribute at higher rates under Section 11 of the EPF Act, or run an Approved Private Provident Fund (APF) with its own rates (e.g. 10%/15%) — enter your actual rates here if they differ.</p>
+        </div>
+      </div>
+
       <button onclick="calculate()">
         <svg class="icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
         Calculate Salary
@@ -449,7 +503,7 @@
         <span class="result-value" id="rGross">-</span>
       </div>
       <div class="result-row" id="rowEpfEmp">
-        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>EPF (Employee 8%)</span>
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg><span id="rEpfEmpLabel">EPF (Employee 8%)</span></span>
         <span class="result-value" id="rEpfEmp">-</span>
       </div>
       <div class="result-row">
@@ -466,7 +520,7 @@
         Employer Contributions
       </div>
       <div class="result-row" id="rowEpfEr">
-        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>EPF (Employer 12%)</span>
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span id="rEpfErLabel">EPF (Employer 12%)</span></span>
         <span class="result-value" id="rEpfEr">-</span>
       </div>
       <div class="result-row" id="rowEtf">
@@ -501,11 +555,11 @@
       </button>
       <div id="resignResult" class="hidden" style="margin-top:16px;">
         <div class="result-row">
-          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Your EPF (8% x months)</span>
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="resEpfEmpLabel">Your EPF (8% x months)</span></span>
           <span class="result-value" id="resEpfEmp">-</span>
         </div>
         <div class="result-row">
-          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Employer's EPF (12% x months)</span>
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg><span id="resEpfErLabel">Employer's EPF (12% x months)</span></span>
           <span class="result-value" id="resEpfEr">-</span>
         </div>
         <div class="result-row total">
@@ -551,6 +605,8 @@
         </div>
       </div>
 
+      <p class="card-desc" id="growthEpfNote" style="margin-top:-6px;">EPF (employee) rate used: <b id="growthEpfPctDisplay">8%</b> — set on the Calculator tab. Toggle "different EPF %" there to change it.</p>
+
       <button onclick="calculateGrowth()">
         <svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         Project My Salary Growth
@@ -570,7 +626,7 @@
       <div class="growth-table-wrap">
         <table class="growth-table">
           <thead>
-            <tr><th>Year</th><th>Gross Salary</th><th>EPF (8%)</th><th>APIT Tax</th><th>Net Take-Home</th></tr>
+            <tr><th>Year</th><th>Gross Salary</th><th id="growthEpfColHeader">EPF (8%)</th><th>APIT Tax</th><th>Net Take-Home</th></tr>
           </thead>
           <tbody id="growthTableBody"></tbody>
         </table>
@@ -647,6 +703,32 @@ function syncSalaryEverywhere() {
 }
 function syncSectorEverywhere() { /* reserved for future use */ }
 
+/* ---------- CUSTOM EPF RATE (new) ---------- */
+function toggleCustomEpf() {
+  const on = document.getElementById('customEpfToggle').checked;
+  document.getElementById('epfRateBox').classList.toggle('hidden', !on);
+  if (!on) {
+    // reset back to statutory minimum when turned off
+    document.getElementById('epfEmpPct').value = 8;
+    document.getElementById('epfErPct').value = 12;
+  }
+  syncEpfEverywhere();
+}
+function getEpfRates() {
+  let emp = parseFloat(document.getElementById('epfEmpPct').value);
+  let er = parseFloat(document.getElementById('epfErPct').value);
+  if (isNaN(emp) || emp < 0) emp = 8;
+  if (isNaN(er) || er < 0) er = 12;
+  return { emp, er };
+}
+function syncEpfEverywhere() {
+  const { emp } = getEpfRates();
+  const disp = document.getElementById('growthEpfPctDisplay');
+  if (disp) disp.innerText = emp + '%';
+  const colHeader = document.getElementById('growthEpfColHeader');
+  if (colHeader) colHeader.innerText = 'EPF (' + emp + '%)';
+}
+
 /* ---------- SHARED: APIT CALC ---------- */
 function fmt(n) {
   return 'Rs. ' + n.toLocaleString('en-LK', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -683,10 +765,12 @@ function calculate() {
   const isPrivate = sector === 'private';
   const epfBase = gross;
 
+  const { emp: epfEmpPct, er: epfErPct } = getEpfRates();
+
   let epfEmployee = 0, epfEmployer = 0, etf = 0;
   if (isPrivate) {
-    epfEmployee = epfBase * 0.08;
-    epfEmployer = epfBase * 0.12;
+    epfEmployee = epfBase * (epfEmpPct / 100);
+    epfEmployer = epfBase * (epfErPct / 100);
     etf = epfBase * 0.03;
   }
 
@@ -707,6 +791,8 @@ function calculate() {
   document.getElementById('rEpfEr').innerText = fmt(epfEmployer);
   document.getElementById('rEtf').innerText = fmt(etf);
   document.getElementById('rCost').innerText = fmt(employerCost);
+  document.getElementById('rEpfEmpLabel').innerText = 'EPF (Employee ' + epfEmpPct + '%)';
+  document.getElementById('rEpfErLabel').innerText = 'EPF (Employer ' + epfErPct + '%)';
 
   document.getElementById('rowEpfEmp').style.display = isPrivate ? 'flex' : 'none';
   document.getElementById('rowEpfEr').style.display = isPrivate ? 'flex' : 'none';
@@ -716,6 +802,8 @@ function calculate() {
 
   window.currentIsPrivate = isPrivate;
   window.currentEpfBase = epfBase;
+  window.currentEpfEmpPct = epfEmpPct;
+  window.currentEpfErPct = epfErPct;
 
   const resignCard = document.getElementById('resignCard');
   resignCard.classList.toggle('hidden', !isPrivate);
@@ -736,12 +824,16 @@ function calculateResignation() {
   if (totalMonths <= 0) { alert('Please enter a valid duration worked.'); return; }
 
   const epfBase = window.currentEpfBase;
-  const totalEpfEmployee = epfBase * 0.08 * totalMonths;
-  const totalEpfEmployer = epfBase * 0.12 * totalMonths;
+  const epfEmpPct = window.currentEpfEmpPct || 8;
+  const epfErPct = window.currentEpfErPct || 12;
+  const totalEpfEmployee = epfBase * (epfEmpPct / 100) * totalMonths;
+  const totalEpfEmployer = epfBase * (epfErPct / 100) * totalMonths;
   const totalEpf = totalEpfEmployee + totalEpfEmployer;
   const totalEtf = epfBase * 0.03 * totalMonths;
   const grandTotal = totalEpf + totalEtf;
 
+  document.getElementById('resEpfEmpLabel').innerText = 'Your EPF (' + epfEmpPct + '% x months)';
+  document.getElementById('resEpfErLabel').innerText = "Employer's EPF (" + epfErPct + "% x months)";
   document.getElementById('resEpfEmp').innerText = fmt(totalEpfEmployee);
   document.getElementById('resEpfEr').innerText = fmt(totalEpfEmployer);
   document.getElementById('resEpfTotal').innerText = fmt(totalEpf);
@@ -761,13 +853,14 @@ function calculateGrowth() {
   if (isNaN(years) || years < 1) { alert('Please enter a valid number of years.'); return; }
 
   const isPrivate = document.querySelector('input[name="sector"]:checked').value === 'private';
+  const { emp: epfEmpPct } = getEpfRates();
   const monthlyRelief = 150000;
   let tbody = '';
   let gross = startSalary;
   let firstNet = null, lastNet = null;
 
   for (let y = 0; y <= years; y++) {
-    const epfEmployee = isPrivate ? gross * 0.08 : 0;
+    const epfEmployee = isPrivate ? gross * (epfEmpPct / 100) : 0;
     // Same fix as the main calculator: relief applies to gross directly,
     // per IRD Table 01 — EPF is not subtracted before computing tax.
     const taxable = Math.max(0, gross - monthlyRelief);
@@ -789,6 +882,7 @@ function calculateGrowth() {
   }
 
   document.getElementById('growthTableBody').innerHTML = tbody;
+  document.getElementById('growthEpfColHeader').innerText = 'EPF (' + epfEmpPct + '%)';
   const growthAmt = lastNet - firstNet;
   const growthPctTotal = ((lastNet / firstNet) - 1) * 100;
   document.getElementById('growthSummary').innerText =
@@ -895,6 +989,7 @@ function renderRoleBenchmarks() {
 
 // Initial render
 renderRoleBenchmarks();
+syncEpfEverywhere();
 
 /* ---------- VISITOR COUNTER (unique per browser) ---------- */
 /* countapi.xyz (original service) is dead, so this uses the live

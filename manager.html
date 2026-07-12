@@ -240,6 +240,36 @@
 @media (max-width: 480px) {
   .retire-badge { top: 8px; right: 8px; padding: 7px 13px 7px 10px; font-size: 11.5px; }
 }
+
+  /* Custom EPF rate (new) */
+  .rate-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .rate-toggle-row .rt-label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 600; font-size: clamp(12.5px, 3.2vw, 13.5px); color: #1c1e21;
+  }
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
+    position: absolute; cursor: pointer; inset: 0; background-color: #ccd0d5;
+    transition: .15s; border-radius: 24px;
+  }
+  .switch .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background-color: #fff; transition: .15s; border-radius: 50%;
+  }
+  .switch input:checked + .slider { background-color: var(--blue); }
+  .switch input:checked + .slider:before { transform: translateX(18px); }
+  .epf-rate-box {
+    background: var(--blue-light); border: 1px solid #c7ddff; border-radius: 12px;
+    padding: 14px; margin-bottom: 15px;
+  }
+  .epf-rate-box input[type="number"] { margin-bottom: 0; }
+  .epf-rate-box .rate-hint {
+    font-size: clamp(10.5px, 2.7vw, 11.5px); color: #14428f; margin-top: 8px; margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -289,13 +319,28 @@
       <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Sector</label>
       <div class="radio-group">
         <label class="radio-tile">
-          <input type="radio" name="revSector" value="private" checked>
+          <input type="radio" name="revSector" value="private" checked onchange="toggleRevEpfVisibility()">
           <div class="tile-content"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Private Sector</div>
         </label>
         <label class="radio-tile">
-          <input type="radio" name="revSector" value="government">
+          <input type="radio" name="revSector" value="government" onchange="toggleRevEpfVisibility()">
           <div class="tile-content"><svg class="icon" viewBox="0 0 24 24"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>Government</div>
         </label>
+      </div>
+
+      <div id="revEpfRateWrap">
+        <div class="rate-toggle-row">
+          <span class="rt-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/></svg>My employer uses a different EPF %</span>
+          <label class="switch">
+            <input type="checkbox" id="revCustomEpfToggle" onchange="toggleRevCustomEpf()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="epf-rate-box hidden" id="revEpfRateBox">
+          <label class="field-label" style="margin-bottom:6px;">Employee EPF %</label>
+          <input type="number" id="revEpfEmpPct" placeholder="8" min="0" max="100" step="0.1" value="8">
+          <p class="rate-hint">Statutory minimum is 8%. Some employers elect to contribute at higher rates (Section 11 of the EPF Act) or run an Approved Private Provident Fund with different rates — enter your actual employee rate here if it differs.</p>
+        </div>
       </div>
 
       <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>Desired Net Take-Home (LKR/month)</label>
@@ -317,7 +362,7 @@
         <span class="result-value" id="revGross">-</span>
       </div>
       <div class="result-row" id="revRowEpf">
-        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/></svg>EPF (Employee 8%)</span>
+        <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-1.5h3V20h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2Z"/></svg><span id="revEpfLabel">EPF (Employee 8%)</span></span>
         <span class="result-value" id="revEpf">-</span>
       </div>
       <div class="result-row">
@@ -491,6 +536,24 @@ function fmtShort(n) {
   return 'Rs. ' + Math.round(n).toLocaleString('en-LK');
 }
 
+/* ---------- CUSTOM EPF RATE (new) ---------- */
+function toggleRevCustomEpf() {
+  const on = document.getElementById('revCustomEpfToggle').checked;
+  document.getElementById('revEpfRateBox').classList.toggle('hidden', !on);
+  if (!on) {
+    document.getElementById('revEpfEmpPct').value = 8;
+  }
+}
+function toggleRevEpfVisibility() {
+  const isPrivate = document.querySelector('input[name="revSector"]:checked').value === 'private';
+  document.getElementById('revEpfRateWrap').classList.toggle('hidden', !isPrivate);
+}
+function getRevEpfEmpPct() {
+  let emp = parseFloat(document.getElementById('revEpfEmpPct').value);
+  if (isNaN(emp) || emp < 0) emp = 8;
+  return emp;
+}
+
 /* ---------- SHARED: IRD Table 01 APIT (Y/A 2025/2026) ---------- */
 function calculateAPIT(monthlyTaxableIncome) {
   const bands = [
@@ -534,8 +597,8 @@ function annualTax(annualGross) {
   }
   return tax;
 }
-function netForGross(gross, isPrivate) {
-  const epf = isPrivate ? gross * 0.08 : 0;
+function netForGross(gross, isPrivate, epfEmpPct) {
+  const epf = isPrivate ? gross * (epfEmpPct / 100) : 0;
   const tax = monthlyTax(gross);
   return { net: gross - epf - tax, epf, tax };
 }
@@ -545,24 +608,26 @@ function calcReverse() {
   const targetNet = parseFloat(document.getElementById('revNet').value);
   if (isNaN(targetNet) || targetNet <= 0) { alert('Please enter a valid desired net take-home amount.'); return; }
   const isPrivate = document.querySelector('input[name="revSector"]:checked').value === 'private';
+  const epfEmpPct = getRevEpfEmpPct();
 
   let lo = targetNet, hi = targetNet * 3 + 1000000;
   // Ensure hi produces net >= targetNet
   for (let i = 0; i < 100; i++) {
-    const midNet = netForGross(hi, isPrivate).net;
+    const midNet = netForGross(hi, isPrivate, epfEmpPct).net;
     if (midNet >= targetNet) break;
     hi *= 1.5;
   }
   for (let i = 0; i < 100; i++) {
     const mid = (lo + hi) / 2;
-    const midNet = netForGross(mid, isPrivate).net;
+    const midNet = netForGross(mid, isPrivate, epfEmpPct).net;
     if (midNet < targetNet) lo = mid; else hi = mid;
   }
   const gross = (lo + hi) / 2;
-  const { net, epf, tax } = netForGross(gross, isPrivate);
+  const { net, epf, tax } = netForGross(gross, isPrivate, epfEmpPct);
 
   document.getElementById('revGross').innerText = fmt(gross);
   document.getElementById('revEpf').innerText = fmt(epf);
+  document.getElementById('revEpfLabel').innerText = 'EPF (Employee ' + epfEmpPct + '%)';
   document.getElementById('revTax').innerText = fmt(tax);
   document.getElementById('revNetCheck').innerText = fmt(net);
   document.getElementById('revRowEpf').style.display = isPrivate ? 'flex' : 'none';
