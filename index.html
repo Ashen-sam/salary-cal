@@ -538,7 +538,7 @@
         <span class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></span>
         When You Resign / Leave
       </div>
-      <p class="card-desc">Estimate the total EPF & ETF money paid out to you based on your service period.</p>
+      <p class="card-desc">Estimate the total EPF, ETF, gratuity, and any ex-gratia payment paid out to you based on your service period.</p>
       <div class="two-col">
         <div>
           <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Years Worked</label>
@@ -549,6 +549,11 @@
           <input type="number" id="monthsWorked" placeholder="e.g. 6" min="0" max="11">
         </div>
       </div>
+
+      <label class="field-label"><svg class="icon" viewBox="0 0 24 24"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><polyline points="2 7 12 2 22 7"/><polyline points="2 7 12 12 22 7"/><path d="M12 12v10"/></svg>Ex-Gratia Amount (optional, LKR)</label>
+      <input type="number" id="exGratiaInput" placeholder="Leave blank if not applicable" min="0">
+      <p class="card-desc" style="margin-top:-9px;">Ex-gratia is a discretionary goodwill payment (common in layoffs/VRS) — there's no fixed formula for it, so enter the amount your employer offered, if any, and it will be added to your total below.</p>
+
       <button class="secondary" onclick="calculateResignation()">
         <svg class="icon" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
         Calculate Resignation Payout
@@ -570,13 +575,22 @@
           <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>ETF Balance</span>
           <span class="result-value" id="resEtfTotal">-</span>
         </div>
+        <div class="result-row" id="rowGratuity" style="margin-top:6px;">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>Gratuity (5+ yrs service)</span>
+          <span class="result-value" id="resGratuity">-</span>
+        </div>
+        <p class="card-desc hidden" id="gratuityNote" style="margin-top:-4px; margin-bottom:0;">Gratuity not shown — it only applies after 5+ continuous years of service (Payment of Gratuity Act No. 12 of 1983).</p>
+        <div class="result-row" id="rowExGratia" style="margin-top:6px;">
+          <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><polyline points="2 7 12 2 22 7"/><polyline points="2 7 12 12 22 7"/><path d="M12 12v10"/></svg>Ex-Gratia (as entered)</span>
+          <span class="result-value" id="resExGratia">-</span>
+        </div>
         <div class="result-row total green">
           <span class="result-label"><svg class="icon" viewBox="0 0 24 24"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg>Grand Total Paid to You</span>
           <span class="result-value" id="resGrandTotal">-</span>
         </div>
         <div class="note-box">
           <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Principal-only estimate. Real EPF/ETF also earn annual interest, so actual payout is normally higher. Government employees don't have EPF/ETF.</span>
+          <span>EPF/ETF shown here is principal-only — real balances also earn annual interest, so actual payout is normally higher. Gratuity is calculated as 0.5 × monthly salary × years of service, only if you've completed 5+ continuous years (Payment of Gratuity Act No. 12 of 1983). Ex-gratia is not calculated — it's a discretionary payment, so it's simply added from what you enter above. Government employees don't have EPF/ETF or the statutory gratuity formula.</span>
         </div>
       </div>
     </div>
@@ -830,7 +844,20 @@ function calculateResignation() {
   const totalEpfEmployer = epfBase * (epfErPct / 100) * totalMonths;
   const totalEpf = totalEpfEmployee + totalEpfEmployer;
   const totalEtf = epfBase * 0.03 * totalMonths;
-  const grandTotal = totalEpf + totalEtf;
+
+  // Gratuity — Payment of Gratuity Act No. 12 of 1983
+  // Statutory formula: 0.5 x final monthly salary x total years of service.
+  // Only payable once 5+ continuous years of service are completed.
+  const totalYearsService = totalMonths / 12;
+  const gratuityEligible = totalYearsService >= 5;
+  const gratuity = gratuityEligible ? 0.5 * epfBase * totalYearsService : 0;
+
+  // Ex-gratia — discretionary goodwill payment, no statutory formula.
+  // Not calculated: simply carries forward whatever the user enters, if anything.
+  const exGratiaRaw = parseFloat(document.getElementById('exGratiaInput').value);
+  const exGratia = (!isNaN(exGratiaRaw) && exGratiaRaw > 0) ? exGratiaRaw : 0;
+
+  const grandTotal = totalEpf + totalEtf + gratuity + exGratia;
 
   document.getElementById('resEpfEmpLabel').innerText = 'Your EPF (' + epfEmpPct + '% x months)';
   document.getElementById('resEpfErLabel').innerText = "Employer's EPF (" + epfErPct + "% x months)";
@@ -838,6 +865,26 @@ function calculateResignation() {
   document.getElementById('resEpfEr').innerText = fmt(totalEpfEmployer);
   document.getElementById('resEpfTotal').innerText = fmt(totalEpf);
   document.getElementById('resEtfTotal').innerText = fmt(totalEtf);
+
+  const rowGratuity = document.getElementById('rowGratuity');
+  const gratuityNote = document.getElementById('gratuityNote');
+  if (gratuityEligible) {
+    document.getElementById('resGratuity').innerText = fmt(gratuity);
+    rowGratuity.style.display = 'flex';
+    gratuityNote.classList.add('hidden');
+  } else {
+    rowGratuity.style.display = 'none';
+    gratuityNote.classList.remove('hidden');
+  }
+
+  const rowExGratia = document.getElementById('rowExGratia');
+  if (exGratia > 0) {
+    document.getElementById('resExGratia').innerText = fmt(exGratia);
+    rowExGratia.style.display = 'flex';
+  } else {
+    rowExGratia.style.display = 'none';
+  }
+
   document.getElementById('resGrandTotal').innerText = fmt(grandTotal);
   document.getElementById('resignResult').classList.remove('hidden');
 }
